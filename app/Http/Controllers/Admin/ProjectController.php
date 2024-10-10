@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Project;
+use App\Models\Category;
+use App\Models\Technology;
+
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateProjectRequest;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Category;
 use Illuminate\Support\Str;
 
 
@@ -32,7 +34,8 @@ class ProjectController extends Controller
     public function create()
     {
         $categories = Category::all();
-        return view('admin.projects.create', compact('categories'));
+        $technologies = Technology::all();
+        return view('admin.projects.create', compact('categories', 'technologies'));
     }
 
     /**
@@ -57,6 +60,11 @@ class ProjectController extends Controller
         $project->fill($form_data);
 
         $project->save();
+
+        if ($request->has('technologies')) {
+            $technologies = $request->technologies;
+            $project->technologies()->attach($technologies);
+        };
 
         return redirect()->route('admin.projects.index');
     }
